@@ -33,6 +33,7 @@ import org.springframework.test.web.server.MockMvc;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * The default builder for {@link MockHttpServletRequest}.
@@ -169,8 +170,13 @@ public class DefaultRequestBuilder implements RequestBuilder {
 		MockHttpServletRequest request = createServletRequest(servletContext);
 
 		request.setMethod(method.name());
-		request.setRequestURI(uri.toString());
 
+		// The request URI contains the URI only up to but not including the
+		// query string part
+		String requestUri = UriComponentsBuilder.fromUri(uri).query(null)
+				.fragment(null).build().encode().toUriString();
+		request.setRequestURI(requestUri);
+		request.setQueryString(uri.getRawQuery());
 		for (String name : parameters.keySet()) {
 			for (String value : parameters.get(name)) {
 				request.addParameter(name, value);

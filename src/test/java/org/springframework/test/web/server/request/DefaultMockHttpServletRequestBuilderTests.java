@@ -50,7 +50,22 @@ public class DefaultMockHttpServletRequestBuilderTests {
         assertArrayEquals(new String[]{"bar", "baz"}, parameterMap.get("foo"));
     }
 
-    @Test
+	@Test
+	public void uriEncoding() throws Exception {
+		builder = new DefaultRequestBuilder(new URI("/foo%20bar"), HttpMethod.GET);
+		MockHttpServletRequest request = builder.buildRequest(servletContext);
+		assertEquals("/foo%20bar", request.getRequestURI());
+	}
+
+	@Test
+	public void uriDoesNotIncludeQueryString() throws Exception {
+		builder = new DefaultRequestBuilder(new URI("/foo?bar"), HttpMethod.GET);
+		MockHttpServletRequest request = builder.buildRequest(servletContext);
+		assertEquals("/foo", request.getRequestURI());
+		assertEquals("bar", request.getQueryString());
+	}
+
+	@Test
     public void accept() throws Exception {
         builder.accept(MediaType.TEXT_HTML, MediaType.APPLICATION_XML);
 
